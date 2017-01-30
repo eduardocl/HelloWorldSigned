@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:tns="http://webservices.samples.jboss.org"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
+	xmlns:wsp="http://www.w3.org/ns/ws-policy"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" name="HelloWorld"
+	xmlns:wsaws="http://www.w3.org/2005/08/addressing"
+	targetNamespace="http://webservices.samples.jboss.org">
+	<wsdl:types>
+		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			xmlns:tns="http://webservices.samples.jboss.org" elementFormDefault="unqualified"
+			targetNamespace="http://webservices.samples.jboss.org" version="1.0">
+
+			<xs:element name="sayHello" type="tns:sayHello" />
+
+			<xs:element name="sayHelloResponse" type="tns:sayHelloResponse" />
+
+			<xs:element name="somar" type="tns:somar" />
+
+			<xs:element name="somarResponse" type="tns:somarResponse" />
+
+			<xs:complexType name="sayHello">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="name" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+
+			<xs:complexType name="sayHelloResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="return" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+
+			<xs:complexType name="somar">
+				<xs:sequence>
+					<xs:element name="x" type="xs:int" />
+					<xs:element name="y" type="xs:int" />
+				</xs:sequence>
+			</xs:complexType>
+
+			<xs:complexType name="somarResponse">
+				<xs:sequence>
+					<xs:element name="return" type="xs:int" />
+				</xs:sequence>
+			</xs:complexType>
+
+		</xs:schema>
+	</wsdl:types>
+	
+	<wsdl:message name="sayHello">
+		<wsdl:part element="tns:sayHello" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="somarResponse">
+		<wsdl:part element="tns:somarResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHelloResponse">
+		<wsdl:part element="tns:sayHelloResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="somar">
+		<wsdl:part element="tns:somar" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="HelloWorldWebservice">
+		<wsdl:operation name="sayHello">
+			<wsdl:input message="tns:sayHello" name="sayHello">
+			</wsdl:input>
+			<wsdl:output message="tns:sayHelloResponse" name="sayHelloResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="somar">
+			<wsdl:input message="tns:somar" name="somar">
+			</wsdl:input>
+			<wsdl:output message="tns:somarResponse" name="somarResponse">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="HelloWorldSoapBinding" type="tns:HelloWorldWebservice">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="sayHello">
+			<soap:operation soapAction="" style="document" />
+			<wsdl:input name="sayHello">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="sayHelloResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="somar">
+			<soap:operation soapAction="Sums two integer numbers"
+				style="document" />
+			<wsdl:input name="somar">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="somarResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="HelloWorld">
+		<wsdl:port binding="tns:HelloWorldSoapBinding" name="HelloWorldWebservicePort">
+			<soap:address location="http://localhost:8080/HelloWorldService/HelloWorld" />
+		</wsdl:port>
+	</wsdl:service>
+
+  <wsp:Policy wsu:Id="SecurityServiceEncryptThenSignPolicy" xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:AsymmetricBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+          <wsp:Policy>
+            <sp:InitiatorToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                  <wsp:Policy>
+                    <sp:WssX509V1Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:InitiatorToken>
+            <sp:RecipientToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never">
+                  <wsp:Policy>
+                    <sp:WssX509V1Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:RecipientToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:TripleDesRsa15/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+            <sp:ProtectTokens/>
+            <sp:OnlySignEntireHeadersAndBody/>
+            <sp:EncryptBeforeSigning/>
+          </wsp:Policy>
+        </sp:AsymmetricBinding>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:EncryptedParts>
+        <sp:Wss10 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:MustSupportRefIssuerSerial/>
+          </wsp:Policy>
+        </sp:Wss10>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+</wsdl:definitions>
